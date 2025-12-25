@@ -1,4 +1,4 @@
-package cn.pedant.SweetAlert.sample;
+package com.jazperfox.sweetalert.sample;
 
 import android.app.Activity;
 import android.content.DialogInterface;
@@ -10,8 +10,8 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import cn.pedant.SweetAlert.Constants;
-import cn.pedant.SweetAlert.SweetAlertDialog;
+import com.jazperfox.sweetalert.Constants;
+import com.jazperfox.sweetalert.SweetAlertDialog;
 
 public class SampleActivity extends Activity implements View.OnClickListener {
 

@@ -1,4 +1,4 @@
-package cn.pedant.SweetAlert;
+package com.jazperfox.sweetalert;
 
 
 import android.app.Activity;
