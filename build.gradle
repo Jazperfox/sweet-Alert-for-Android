@@ -4,3 +4,8 @@ plugins {
     id 'com.android.library' version '8.4.0' apply false
 }
 
+dependencies {
+    implementation 'com.github.JazperFox:sweet-alert-dialog:1.0.0'
+}
+
+

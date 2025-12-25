@@ -1,7 +1,10 @@
 Sweet Alert Dialog
 ===================
-SweetAlert for Android, a beautiful and clever alert dialog
 
+> **Note:** This is a fork maintained by **JazperFox** to support **AndroidX**, **Gradle 8+**, and **Java 17/21**.
+> Original work by [Pedant](https://github.com/pedant/sweet-alert-dialog) and [F0RIS](https://github.com/F0RIS/sweet-alert-dialog).
+
+SweetAlert for Android, a beautiful and clever alert dialog.
 #### This is the most advanced and contemporary fork of the apparently dead project 
 **Added:**
 - Ability to set custom view
@@ -37,26 +40,19 @@ Inspired by JavaScript [SweetAlert](http://tristanedwards.me/sweetalert)
 ![image](https://github.com/pedant/sweet-alert-dialog/raw/master/change_type.gif)
 
 ## Setup
-The simplest way to use SweetAlertDialog is to add the library as aar dependency to your build.
+The simplest way to use SweetAlertDialog is to add the library as dependency to your build.
 
-**Maven**
+**Step 1. Add the JitPack repository to your build file**
 
-    <dependency>
-      <groupId>com.github.f0ris.sweetalert</groupId>
-      <artifactId>library</artifactId>
-      <version>1.6.2</version>
-      <type>aar</type>
-    </dependency>
-
-**Gradle**
-
+Add it in your root `settings.gradle`:
+```gradle
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         mavenCentral()
+        maven { url '[https://jitpack.io](https://jitpack.io)' }
     }
-
-    dependencies {
-        implementation 'com.github.f0ris.sweetalert:library:1.6.2'
-    }
+}
 
 ## Usage
 
