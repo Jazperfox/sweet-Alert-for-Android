@@ -189,6 +189,10 @@ new SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
     })
     .show();
 ```
+A info message：
+```
+new SweetAlertDialog(this, SweetAlertDialog.INFO_TYPE) .setTitleText("Did you know?") .setContentText("Here is some information for you.") .show();
+```
 Disable button
 ```
 final SweetAlertDialog disabledBtnDialog = new SweetAlertDialog(this, SweetAlertDialog.NORMAL_TYPE)
