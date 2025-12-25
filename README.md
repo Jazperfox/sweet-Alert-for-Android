@@ -54,6 +54,15 @@ dependencyResolutionManagement {
     }
 }
 
+Step 2. Add the dependency
+
+In your app's build.gradle:
+
+Gradle
+
+dependencies {
+    implementation 'com.github.JazperFox:sweet-alert-dialog:1.0.0'
+}
 ## Usage
 
 show material progress
