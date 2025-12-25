@@ -1,17 +1,18 @@
 package com.jazperfox.sweetalert;
 
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import com.pnikosis.materialishprogress.ProgressWheel;
 
@@ -55,6 +58,9 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
     private FrameLayout mErrorFrame;
     private FrameLayout mSuccessFrame;
     private FrameLayout mProgressFrame;
+    // --- Campo Nuevo ---
+    private FrameLayout mInfoFrame;
+    // -------------------
     private SuccessTickView mSuccessTick;
     private ImageView mErrorX;
     private View mSuccessLeftMask;
@@ -80,6 +86,9 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
     private boolean mCloseFromCancel;
     private boolean mHideKeyBoardOnDismiss = true;
     private int contentTextSize = 0;
+    private int titleTextSize = 0;
+
+    private Typeface mTypeface;
 
     public static final int NORMAL_TYPE = 0;
     public static final int ERROR_TYPE = 1;
@@ -87,17 +96,18 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
     public static final int WARNING_TYPE = 3;
     public static final int CUSTOM_IMAGE_TYPE = 4;
     public static final int PROGRESS_TYPE = 5;
-
+    // --- Nuevo Tipo ---
+    public static final int INFO_TYPE = 6;
+    // ------------------
 
     public static boolean DARK_STYLE = false;
 
-    //aliases
     public final static int BUTTON_CONFIRM = DialogInterface.BUTTON_POSITIVE;
     public final static int BUTTON_CANCEL = DialogInterface.BUTTON_NEGATIVE;
+    public final static int BUTTON_NEUTRAL = DialogInterface.BUTTON_NEUTRAL;
 
     private final float defStrokeWidth;
     private float strokeWidth = 0;
-
 
     public SweetAlertDialog hideConfirmButton() {
         this.mHideConfirmButton = true;
@@ -115,69 +125,79 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
     public SweetAlertDialog(Context context, int alertType) {
         super(context, DARK_STYLE ? R.style.alert_dialog_dark : R.style.alert_dialog_light);
         setCancelable(true);
-        setCanceledOnTouchOutside(true); //TODO was false
+        setCanceledOnTouchOutside(true);
 
         defStrokeWidth = getContext().getResources().getDimension(R.dimen.buttons_stroke_width);
         strokeWidth = defStrokeWidth;
 
         mProgressHelper = new ProgressHelper(context);
         mAlertType = alertType;
-        mErrorInAnim = OptAnimationLoader.loadAnimation(getContext(), R.anim.error_frame_in);
-        mErrorXInAnim = (AnimationSet) OptAnimationLoader.loadAnimation(getContext(), R.anim.error_x_in);
-        // 2.3.x system don't support alpha-animation on layer-list drawable
-        // remove it from animation set
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
-            List<Animation> childAnims = mErrorXInAnim.getAnimations();
-            int idx = 0;
-            for (; idx < childAnims.size(); idx++) {
-                if (childAnims.get(idx) instanceof AlphaAnimation) {
-                    break;
-                }
-            }
-            if (idx < childAnims.size()) {
-                childAnims.remove(idx);
-            }
-        }
-        mSuccessBowAnim = OptAnimationLoader.loadAnimation(getContext(), R.anim.success_bow_roate);
-        mSuccessLayoutAnimSet = (AnimationSet) OptAnimationLoader.loadAnimation(getContext(), R.anim.success_mask_layout);
-        mModalInAnim = (AnimationSet) OptAnimationLoader.loadAnimation(getContext(), R.anim.modal_in);
-        mModalOutAnim = (AnimationSet) OptAnimationLoader.loadAnimation(getContext(), R.anim.modal_out);
-        mModalOutAnim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
 
-            }
+        try {
+            mErrorInAnim = OptAnimationLoader.loadAnimation(getContext(), R.anim.error_frame_in);
+            mErrorXInAnim = (AnimationSet) OptAnimationLoader.loadAnimation(getContext(), R.anim.error_x_in);
 
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                mDialogView.setVisibility(View.GONE);
-                if (mHideKeyBoardOnDismiss) {
-                    hideSoftKeyboard();
-                }
-                mDialogView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mCloseFromCancel) {
-                            SweetAlertDialog.super.cancel();
-                        } else {
-                            SweetAlertDialog.super.dismiss();
-                        }
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
+                List<Animation> childAnims = mErrorXInAnim.getAnimations();
+                int idx = 0;
+                for (; idx < childAnims.size(); idx++) {
+                    if (childAnims.get(idx) instanceof AlphaAnimation) {
+                        break;
                     }
-                });
+                }
+                if (idx < childAnims.size()) {
+                    childAnims.remove(idx);
+                }
             }
+            mSuccessBowAnim = OptAnimationLoader.loadAnimation(getContext(), R.anim.success_bow_roate);
+            mSuccessLayoutAnimSet = (AnimationSet) OptAnimationLoader.loadAnimation(getContext(), R.anim.success_mask_layout);
+            mModalInAnim = (AnimationSet) OptAnimationLoader.loadAnimation(getContext(), R.anim.modal_in);
+            mModalOutAnim = (AnimationSet) OptAnimationLoader.loadAnimation(getContext(), R.anim.modal_out);
+        } catch (Exception e) {
+            Log.e("SweetAlertDialog", "Error loading animations", e);
+        }
 
-            @Override
-            public void onAnimationRepeat(Animation animation) {
+        if (mModalOutAnim != null) {
+            mModalOutAnim.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {}
 
-            }
-        });
-        // dialog overlay fade out
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    if (mDialogView != null) mDialogView.setVisibility(View.GONE);
+                    if (mHideKeyBoardOnDismiss) {
+                        hideSoftKeyboard();
+                    }
+                    if (mDialogView != null) {
+                        mDialogView.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    if (mCloseFromCancel) {
+                                        SweetAlertDialog.super.cancel();
+                                    } else {
+                                        SweetAlertDialog.super.dismiss();
+                                    }
+                                } catch (Exception e) {
+                                }
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {}
+            });
+        }
+
         mOverlayOutAnim = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
-                WindowManager.LayoutParams wlp = getWindow().getAttributes();
-                wlp.alpha = 1 - interpolatedTime;
-                getWindow().setAttributes(wlp);
+                if (getWindow() != null) {
+                    WindowManager.LayoutParams wlp = getWindow().getAttributes();
+                    wlp.alpha = 1 - interpolatedTime;
+                    getWindow().setAttributes(wlp);
+                }
             }
         };
         mOverlayOutAnim.setDuration(120);
@@ -200,6 +220,9 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
         mSuccessRightMask = mSuccessFrame.findViewById(R.id.mask_right);
         mCustomImage = findViewById(R.id.custom_image);
         mWarningFrame = findViewById(R.id.warning_frame);
+        // --- Binding Nuevo Frame ---
+        mInfoFrame = findViewById(R.id.info_frame);
+        // ---------------------------
         mButtonsContainer = findViewById(R.id.buttons_container);
         mConfirmButton = findViewById(R.id.confirm_button);
         mConfirmButton.setOnClickListener(this);
@@ -225,85 +248,112 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
         setCancelButtonTextColor(mCancelButtonTextColor);
         setNeutralButtonBackgroundColor(mNeutralButtonBackgroundColor);
         setNeutralButtonTextColor(mNeutralButtonTextColor);
-        changeAlertType(mAlertType, true);
 
+        if (mTypeface != null) {
+            applyTypeface();
+        }
+
+        changeAlertType(mAlertType, true);
+    }
+
+    private void applyTypeface() {
+        if (mTitleTextView != null) mTitleTextView.setTypeface(mTypeface);
+        if (mContentTextView != null) mContentTextView.setTypeface(mTypeface);
+        if (mConfirmButton != null) mConfirmButton.setTypeface(mTypeface);
+        if (mCancelButton != null) mCancelButton.setTypeface(mTypeface);
+        if (mNeutralButton != null) mNeutralButton.setTypeface(mTypeface);
+    }
+
+    public SweetAlertDialog setTypeface(Typeface typeface) {
+        mTypeface = typeface;
+        applyTypeface();
+        return this;
     }
 
     private void restore() {
-        mCustomImage.setVisibility(View.GONE);
-        mErrorFrame.setVisibility(View.GONE);
-        mSuccessFrame.setVisibility(View.GONE);
-        mWarningFrame.setVisibility(View.GONE);
-        mProgressFrame.setVisibility(View.GONE);
+        if (mCustomImage != null) mCustomImage.setVisibility(View.GONE);
+        if (mErrorFrame != null) {
+            mErrorFrame.setVisibility(View.GONE);
+            mErrorFrame.clearAnimation();
+        }
+        if (mSuccessFrame != null) mSuccessFrame.setVisibility(View.GONE);
+        if (mWarningFrame != null) mWarningFrame.setVisibility(View.GONE);
+        if (mProgressFrame != null) mProgressFrame.setVisibility(View.GONE);
+        // --- Restaurar Nuevo Frame ---
+        if (mInfoFrame != null) mInfoFrame.setVisibility(View.GONE);
+        // -----------------------------
 
-        mConfirmButton.setVisibility(mHideConfirmButton ? View.GONE : View.VISIBLE);
+        if (mConfirmButton != null) {
+            mConfirmButton.setVisibility(mHideConfirmButton ? View.GONE : View.VISIBLE);
+            mConfirmButton.setBackgroundResource(R.drawable.green_button_background);
+        }
 
         adjustButtonContainerVisibility();
 
-        mConfirmButton.setBackgroundResource(R.drawable.green_button_background);
-        mErrorFrame.clearAnimation();
-        mErrorX.clearAnimation();
-        mSuccessTick.clearAnimation();
-        mSuccessLeftMask.clearAnimation();
-        mSuccessRightMask.clearAnimation();
+        if (mErrorX != null) mErrorX.clearAnimation();
+        if (mSuccessTick != null) mSuccessTick.clearAnimation();
+        if (mSuccessLeftMask != null) mSuccessLeftMask.clearAnimation();
+        if (mSuccessRightMask != null) mSuccessRightMask.clearAnimation();
     }
 
-    /**
-     * Hides buttons container if all buttons are invisible or gone.
-     * This deletes useless margins
-     */
     private void adjustButtonContainerVisibility() {
         boolean showButtonsContainer = false;
-        for (int i = 0; i < mButtonsContainer.getChildCount(); i++) {
-            View view = mButtonsContainer.getChildAt(i);
-            if (view instanceof Button && view.getVisibility() == View.VISIBLE) {
-                showButtonsContainer = true;
-                break;
+        if (mButtonsContainer != null) {
+            for (int i = 0; i < mButtonsContainer.getChildCount(); i++) {
+                View view = mButtonsContainer.getChildAt(i);
+                if (view instanceof Button && view.getVisibility() == View.VISIBLE) {
+                    showButtonsContainer = true;
+                    break;
+                }
             }
+            mButtonsContainer.setVisibility(showButtonsContainer ? View.VISIBLE : View.GONE);
         }
-        mButtonsContainer.setVisibility(showButtonsContainer ? View.VISIBLE : View.GONE);
     }
 
     private void playAnimation() {
         if (mAlertType == ERROR_TYPE) {
-            mErrorFrame.startAnimation(mErrorInAnim);
-            mErrorX.startAnimation(mErrorXInAnim);
+            if (mErrorFrame != null) mErrorFrame.startAnimation(mErrorInAnim);
+            if (mErrorX != null) mErrorX.startAnimation(mErrorXInAnim);
         } else if (mAlertType == SUCCESS_TYPE) {
-            mSuccessTick.startTickAnim();
-            mSuccessRightMask.startAnimation(mSuccessBowAnim);
+            if (mSuccessTick != null) mSuccessTick.startTickAnim();
+            if (mSuccessRightMask != null) mSuccessRightMask.startAnimation(mSuccessBowAnim);
         }
     }
 
     private void changeAlertType(int alertType, boolean fromCreate) {
         mAlertType = alertType;
-        // call after created views
         if (mDialogView != null) {
             if (!fromCreate) {
-                // restore all of views state before switching alert type
                 restore();
             }
-            mConfirmButton.setVisibility(mHideConfirmButton ? View.GONE : View.VISIBLE);
+            if (mConfirmButton != null) {
+                mConfirmButton.setVisibility(mHideConfirmButton ? View.GONE : View.VISIBLE);
+            }
             switch (mAlertType) {
                 case ERROR_TYPE:
-                    mErrorFrame.setVisibility(View.VISIBLE);
+                    if (mErrorFrame != null) mErrorFrame.setVisibility(View.VISIBLE);
                     break;
                 case SUCCESS_TYPE:
-                    mSuccessFrame.setVisibility(View.VISIBLE);
-                    // initial rotate layout of success mask
-                    mSuccessLeftMask.startAnimation(mSuccessLayoutAnimSet.getAnimations().get(0));
-                    mSuccessRightMask.startAnimation(mSuccessLayoutAnimSet.getAnimations().get(1));
+                    if (mSuccessFrame != null) {
+                        mSuccessFrame.setVisibility(View.VISIBLE);
+                        if (mSuccessLeftMask != null) mSuccessLeftMask.startAnimation(mSuccessLayoutAnimSet.getAnimations().get(0));
+                        if (mSuccessRightMask != null) mSuccessRightMask.startAnimation(mSuccessLayoutAnimSet.getAnimations().get(1));
+                    }
                     break;
                 case WARNING_TYPE:
-//                    mConfirmButton.setBackgroundResource(R.drawable.red_button_background);
-                    mWarningFrame.setVisibility(View.VISIBLE);
+                    if (mWarningFrame != null) mWarningFrame.setVisibility(View.VISIBLE);
                     break;
+                // --- Caso Nuevo ---
+                case INFO_TYPE:
+                    if (mInfoFrame != null) mInfoFrame.setVisibility(View.VISIBLE);
+                    break;
+                // ------------------
                 case CUSTOM_IMAGE_TYPE:
                     setCustomImage(mCustomImgDrawable);
                     break;
                 case PROGRESS_TYPE:
-                    mProgressFrame.setVisibility(View.VISIBLE);
-                    mConfirmButton.setVisibility(View.GONE);
-//                    mButtonsContainer.setVisibility(View.GONE);
+                    if (mProgressFrame != null) mProgressFrame.setVisibility(View.VISIBLE);
+                    if (mConfirmButton != null) mConfirmButton.setVisibility(View.GONE);
                     break;
             }
             adjustButtonContainerVisibility();
@@ -321,7 +371,6 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
         changeAlertType(alertType, false);
     }
 
-
     public String getTitleText() {
         return mTitleText;
     }
@@ -333,6 +382,9 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
                 mTitleTextView.setVisibility(View.GONE);
             } else {
                 mTitleTextView.setVisibility(View.VISIBLE);
+                if (titleTextSize != 0) {
+                    mTitleTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, spToPx(titleTextSize, getContext()));
+                }
                 mTitleTextView.setText(Html.fromHtml(mTitleText));
             }
         }
@@ -341,6 +393,15 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
 
     public SweetAlertDialog setTitleText(int resId) {
         return setTitleText(getContext().getResources().getString(resId));
+    }
+
+    public SweetAlertDialog setTitleTextSize(int value) {
+        this.titleTextSize = value;
+        return this;
+    }
+
+    public int getTitleTextSize() {
+        return titleTextSize;
     }
 
     public SweetAlertDialog setCustomImage(Drawable drawable) {
@@ -353,16 +414,13 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
     }
 
     public SweetAlertDialog setCustomImage(int resourceId) {
-        return setCustomImage(getContext().getResources().getDrawable(resourceId));
+        return setCustomImage(ContextCompat.getDrawable(getContext(), resourceId));
     }
 
     public String getContentText() {
         return mContentText;
     }
 
-    /**
-     * @param text text which can contain html tags.
-     */
     public SweetAlertDialog setContentText(String text) {
         mContentText = text;
         if (mContentTextView != null && mContentText != null) {
@@ -381,9 +439,6 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, context.getResources().getDisplayMetrics());
     }
 
-    /**
-     * @param width in SP
-     */
     public SweetAlertDialog setStrokeWidth(float width) {
         this.strokeWidth = spToPx(width, getContext());
         return this;
@@ -391,10 +446,9 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
 
     private void applyStroke() {
         if (Float.compare(defStrokeWidth, strokeWidth) != 0) {
-            Resources r = getContext().getResources();
-            setButtonBackgroundColor(mConfirmButton, r.getColor(R.color.main_green_color));
-            setButtonBackgroundColor(mNeutralButton, r.getColor(R.color.main_disabled_color));
-            setButtonBackgroundColor(mCancelButton, r.getColor(R.color.red_btn_bg_color));
+            setButtonBackgroundColor(mConfirmButton, ContextCompat.getColor(getContext(), R.color.main_green_color));
+            setButtonBackgroundColor(mNeutralButton, ContextCompat.getColor(getContext(), R.color.main_disabled_color));
+            setButtonBackgroundColor(mCancelButton, ContextCompat.getColor(getContext(), R.color.red_btn_bg_color));
         }
     }
 
@@ -482,9 +536,7 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
             Drawable[] drawableItems = ViewUtils.getDrawable(btn);
             if (drawableItems != null) {
                 GradientDrawable gradientDrawableUnChecked = (GradientDrawable) drawableItems[1];
-                //solid color
                 gradientDrawableUnChecked.setColor(color);
-                //stroke
                 gradientDrawableUnChecked.setStroke((int) strokeWidth, genStrokeColor(color));
             }
         }
@@ -493,7 +545,7 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
     private int genStrokeColor(int color) {
         float hsv[] = new float[3];
         Color.colorToHSV(color, hsv);
-        hsv[2] *= 0.7f; // decrease value component
+        hsv[2] *= 0.7f;
         return Color.HSVToColor(hsv);
     }
 
@@ -616,11 +668,6 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
         return this;
     }
 
-    /**
-     * Set content text size
-     *
-     * @param value text size in sp
-     */
     public SweetAlertDialog setContentTextSize(int value) {
         this.contentTextSize = value;
         return this;
@@ -631,15 +678,10 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
     }
 
     protected void onStart() {
-        mDialogView.startAnimation(mModalInAnim);
+        if (mModalInAnim != null) mDialogView.startAnimation(mModalInAnim);
         playAnimation();
     }
 
-    /**
-     * set custom view instead of message
-     *
-     * @param view
-     */
     public SweetAlertDialog setCustomView(View view) {
         mCustomView = view;
         if (mCustomView != null && mCustomViewContainer != null) {
@@ -650,26 +692,39 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
         return this;
     }
 
-    /**
-     * The real Dialog.cancel() will be invoked async-ly after the animation finishes.
-     */
+    @Override
+    public void show() {
+        Context context = getContext();
+        if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+            if (activity.isFinishing() || activity.isDestroyed()) {
+                return;
+            }
+        }
+        try {
+            super.show();
+        } catch (Exception e) {
+            Log.e("SweetAlertDialog", "Show error", e);
+        }
+    }
+
     @Override
     public void cancel() {
         dismissWithAnimation(true);
     }
 
-    /**
-     * The real Dialog.dismiss() will be invoked async-ly after the animation finishes.
-     */
     public void dismissWithAnimation() {
         dismissWithAnimation(false);
     }
 
     private void dismissWithAnimation(boolean fromCancel) {
         mCloseFromCancel = fromCancel;
-        //several view animations can't be launched at one view, that's why apply alpha animation on child
-        ((ViewGroup) mDialogView).getChildAt(0).startAnimation(mOverlayOutAnim); //alpha animation
-        mDialogView.startAnimation(mModalOutAnim); //scale animation
+        if (mOverlayOutAnim != null && mDialogView != null) {
+            ((ViewGroup) mDialogView).getChildAt(0).startAnimation(mOverlayOutAnim);
+            mDialogView.startAnimation(mModalOutAnim);
+        } else {
+            if (fromCancel) super.cancel(); else super.dismiss();
+        }
     }
 
     @Override

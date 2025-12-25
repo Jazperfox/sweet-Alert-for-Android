@@ -1,7 +1,7 @@
 package com.jazperfox.sweetalert;
 
 import android.content.Context;
-
+import androidx.core.content.ContextCompat; // Importante para compatibilidad
 import com.pnikosis.materialishprogress.ProgressWheel;
 
 public class ProgressHelper {
@@ -20,7 +20,11 @@ public class ProgressHelper {
         mToSpin = true;
         mSpinSpeed = 0.75f;
         mBarWidth = ctx.getResources().getDimensionPixelSize(R.dimen.common_circle_width) + 1;
-        mBarColor = ctx.getResources().getColor(R.color.success_stroke_color);
+
+        // --- CORRECCION: Uso seguro de colores ---
+        mBarColor = ContextCompat.getColor(ctx, R.color.success_stroke_color);
+        // -----------------------------------------
+
         mRimWidth = 0;
         mRimColor = 0x00000000;
         mIsInstantProgress = false;
@@ -112,9 +116,6 @@ public class ProgressHelper {
         return mCircleRadius;
     }
 
-    /**
-     * @param circleRadius units using pixel
-     * **/
     public void setCircleRadius(int circleRadius) {
         mCircleRadius = circleRadius;
         updatePropsIfNeed();
