@@ -1,0 +1,61 @@
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
+
+android {
+    namespace 'com.jazperfox.sweetalert'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    // --- CORRECCIÓN IMPORTANTE ---
+    // Esto obliga a Android Studio a crear el componente "release"
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+    // -----------------------------
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+   // implementation 'com.pnikosis:materialish-progress:1.7'
+}
+
+// Configuración para publicar
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                // Ahora esto sí funcionará porque lo activamos arriba
+                from components.release
+
+                // TU USUARIO VA AQUÍ ABAJO (Mira el paso 2)
+                groupId = 'com.github.JazperFox'
+                artifactId = 'sweet-alert-dialog'
+                version = '1.0.0'
+            }
+        }
+    }
+}
