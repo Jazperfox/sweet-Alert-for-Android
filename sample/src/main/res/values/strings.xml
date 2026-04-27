@@ -1,4 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">SweetAlertDialog</string>
+
+    <string name="dark_style">Dark style</string>
+    <string name="show_material_progress">Show material progress</string>
+    <string name="a_basic_message">A basic message</string>
+    <string name="a_basic_message_without_buttons">A basic message \nwithout buttons</string>
+    <string name="a_title_with_a_text_under">A title with a text under</string>
+    <string name="styled_text_and_stroke">Styled text and stroke</string>
+    <string name="show_error_message">show error message</string>
+    <string name="a_success_message">A success message</string>
+    <string name="a_warning_confirm_msg">A warning message, with a listener bind to the Confirm-button...</string>
+    <string name="a_warning_cancel_msg">A warning message, with listeners bind to Cancel and Confirm button...</string>
+    <string name="a_message_with_a_custom_icon">A message with a custom icon</string>
+    <string name="a_message_with_neutral_button">A message with neutral button</string>
+    <string name="disabled_ok_button">Disabled OK button</string>
+    <string name="custom_view">Custom view</string>
+    <string name="custom_btn_colors">Custom btn colors</string>
+    <string name="try_me">Try me!</string>
+
+    <string name="title_text">Here\'s a message!</string>
+    <string name="content_text">It\'s pretty, isn\'t it?</string>
+    <string name="styled_title">Title with &lt;b&gt;bold&lt;/b&gt; and &lt;i&gt;italic&lt;/i&gt;</string>
+    <string name="styled_content">Content with &lt;font color=\'#FF0000\'&gt;red text&lt;/font&gt; and &lt;u&gt;underline&lt;/u&gt;</string>
+    <string name="error_title">Oops...</string>
+    <string name="error_content">Something went wrong!</string>
+    <string name="success_title">Good job!</string>
+    <string name="success_content">You clicked the button!</string>
+    <string name="warning_title">Are you sure?</string>
+    <string name="warning_content">Won\'t be able to recover this file!</string>
+    <string name="delete_confirm">Yes, delete it!</string>
+    <string name="deleted_title">Deleted!</string>
+    <string name="deleted_content">Your imaginary file has been deleted.</string>
+    <string name="cancel">Cancel</string>
+    <string name="cancelled_title">Cancelled</string>
+    <string name="cancelled_content">Your imaginary file is safe :)</string>
+    <string name="custom_icon_content">A custom image is very pretty</string>
+    <string name="neutral_title">Neutral button</string>
+    <string name="neutral_content">Do you like it?</string>
+    <string name="neutral_text">Maybe</string>
+    <string name="custom_view_title">Custom View</string>
+    <string name="custom_view_content">This is a custom view</string>
+    <string name="loading">Loading</string>
+    <string name="completed">Completed!</string>
+
 </resources>

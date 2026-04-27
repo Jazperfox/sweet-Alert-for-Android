@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -58,9 +57,7 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
     private FrameLayout mErrorFrame;
     private FrameLayout mSuccessFrame;
     private FrameLayout mProgressFrame;
-    // --- Campo Nuevo ---
     private FrameLayout mInfoFrame;
-    // -------------------
     private SuccessTickView mSuccessTick;
     private ImageView mErrorX;
     private View mSuccessLeftMask;
@@ -96,9 +93,7 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
     public static final int WARNING_TYPE = 3;
     public static final int CUSTOM_IMAGE_TYPE = 4;
     public static final int PROGRESS_TYPE = 5;
-    // --- Nuevo Tipo ---
     public static final int INFO_TYPE = 6;
-    // ------------------
 
     public static boolean DARK_STYLE = false;
 
@@ -169,17 +164,14 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
                         hideSoftKeyboard();
                     }
                     if (mDialogView != null) {
-                        mDialogView.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    if (mCloseFromCancel) {
-                                        SweetAlertDialog.super.cancel();
-                                    } else {
-                                        SweetAlertDialog.super.dismiss();
-                                    }
-                                } catch (Exception e) {
+                        mDialogView.post(() -> {
+                            try {
+                                if (mCloseFromCancel) {
+                                    SweetAlertDialog.super.cancel();
+                                } else {
+                                    SweetAlertDialog.super.dismiss();
                                 }
+                            } catch (Exception e) {
                             }
                         });
                     }
@@ -220,9 +212,7 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
         mSuccessRightMask = mSuccessFrame.findViewById(R.id.mask_right);
         mCustomImage = findViewById(R.id.custom_image);
         mWarningFrame = findViewById(R.id.warning_frame);
-        // --- Binding Nuevo Frame ---
         mInfoFrame = findViewById(R.id.info_frame);
-        // ---------------------------
         mButtonsContainer = findViewById(R.id.buttons_container);
         mConfirmButton = findViewById(R.id.confirm_button);
         mConfirmButton.setOnClickListener(this);
@@ -279,9 +269,7 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
         if (mSuccessFrame != null) mSuccessFrame.setVisibility(View.GONE);
         if (mWarningFrame != null) mWarningFrame.setVisibility(View.GONE);
         if (mProgressFrame != null) mProgressFrame.setVisibility(View.GONE);
-        // --- Restaurar Nuevo Frame ---
         if (mInfoFrame != null) mInfoFrame.setVisibility(View.GONE);
-        // -----------------------------
 
         if (mConfirmButton != null) {
             mConfirmButton.setVisibility(mHideConfirmButton ? View.GONE : View.VISIBLE);
@@ -343,11 +331,9 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
                 case WARNING_TYPE:
                     if (mWarningFrame != null) mWarningFrame.setVisibility(View.VISIBLE);
                     break;
-                // --- Caso Nuevo ---
                 case INFO_TYPE:
                     if (mInfoFrame != null) mInfoFrame.setVisibility(View.VISIBLE);
                     break;
-                // ------------------
                 case CUSTOM_IMAGE_TYPE:
                     setCustomImage(mCustomImgDrawable);
                     break;
@@ -385,7 +371,11 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
                 if (titleTextSize != 0) {
                     mTitleTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, spToPx(titleTextSize, getContext()));
                 }
-                mTitleTextView.setText(Html.fromHtml(mTitleText));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    mTitleTextView.setText(Html.fromHtml(mTitleText, Html.FROM_HTML_MODE_LEGACY));
+                } else {
+                    mTitleTextView.setText(Html.fromHtml(mTitleText));
+                }
             }
         }
         return this;
@@ -428,7 +418,11 @@ public class SweetAlertDialog extends Dialog implements View.OnClickListener {
             if (contentTextSize != 0) {
                 mContentTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, spToPx(contentTextSize, getContext()));
             }
-            mContentTextView.setText(Html.fromHtml(mContentText));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mContentTextView.setText(Html.fromHtml(mContentText, Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                mContentTextView.setText(Html.fromHtml(mContentText));
+            }
             mContentTextView.setVisibility(View.VISIBLE);
             mCustomViewContainer.setVisibility(View.GONE);
         }
