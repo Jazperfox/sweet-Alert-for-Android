@@ -60,7 +60,7 @@ Step 2. Add the dependency
 In your app's build.gradle:
 ```
 dependencies {
-implementation 'com.github.JazperFox:sweet-alert-dialog:1.0.0'
+implementation 'com.github.JazperFox:sweet-alert-for-Android:1.0.2'
 }
 ```
 
