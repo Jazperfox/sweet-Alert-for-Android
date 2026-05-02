@@ -53,8 +53,8 @@ afterEvaluate {
 
                 // TU USUARIO VA AQUÍ ABAJO (Mira el paso 2)
                 groupId = 'com.github.JazperFox'
-                artifactId = 'sweet-alert-forAndroid'
-                version = '1.0.1'
+                artifactId = 'sweet-alert-for-Android'
+                version = '1.0.2'
             }
         }
     }
